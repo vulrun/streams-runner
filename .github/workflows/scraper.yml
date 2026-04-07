@@ -32,7 +32,10 @@ jobs:
         run: |
           git clone "$REPO_URL" "$REPO_DIR"
           cd "$REPO_DIR"
-          git checkout dist
+
+          # Fetch latest main and dist
+          git fetch origin main
+          git fetch origin dist
 
       - name: Install dependencies
         working-directory: ${{ env.REPO_DIR }}
@@ -51,9 +54,10 @@ jobs:
           mkdir -p output debug
           touch output/.keep debug/.keep
 
+          git checkout -b dist-work origin/dist
           git add -A -f output/* debug/* 2>/dev/null || true
           git commit -m "Updated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')" || echo "No changes"
-          git push "$REPO_URL" dist --force
+          git push "$REPO_URL" dist-work:dist --force
 
       - name: Install dependencies
         run: npm install @octokit/rest
