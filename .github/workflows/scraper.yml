@@ -54,8 +54,18 @@ jobs:
           mkdir -p output debug
           touch output/.keep debug/.keep
 
+          # Save generated files before switching branches
+          cp -r output output.bak
+          cp -r debug debug.bak
+
           git checkout -b dist-work origin/dist
-          git add -A -f output/* debug/* 2>/dev/null || true
+
+          # Restore files and add them
+          rm -rf output debug
+          mv output.bak output
+          mv debug.bak debug
+
+          git add -f output/* debug/* || true
           git commit -m "Updated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')" || echo "No changes"
           git push "$REPO_URL" dist-work:dist --force
 
